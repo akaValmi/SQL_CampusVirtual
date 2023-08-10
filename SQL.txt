@@ -1,0 +1,259 @@
+create database campusVirtual
+
+use campusVirtual
+
+drop database campusVirtual
+
+CREATE TABLE Paises(
+	idPais INTEGER PRIMARY KEY IDENTITY,
+	nombre VARCHAR(50) NOT NULL UNIQUE,
+)
+
+CREATE TABLE Departamentos(
+	idDepartamento INTEGER PRIMARY KEY IDENTITY,
+	idPais INTEGER REFERENCES Paises(idPais),
+	nombre VARCHAR(50) NOT NULL
+)
+
+CREATE TABLE Municipios(
+	idMunicipio INTEGER PRIMARY KEY IDENTITY,
+	idDepartamento INTEGER REFERENCES Departamentos(idDepartamento),
+	nombre VARCHAR(50) NOT NULL
+)
+
+CREATE TABLE Direcciones(
+	idDireccion INTEGER PRIMARY KEY IDENTITY,
+	idMunicipio INTEGER REFERENCES Municipios(idMunicipio),
+	colonia VARCHAR(150),
+	calle VARCHAR(150)
+)
+
+
+CREATE TABLE Roles(
+	idRol INTEGER PRIMARY KEY IDENTITY,
+	rol VARCHAR(50) NOT NULL UNIQUE
+)
+
+
+CREATE TABLE Permisos(
+	idPermisos INTEGER PRIMARY KEY IDENTITY,
+	permiso VARCHAR(50) NOT NULL UNIQUE,
+	idRol INTEGER REFERENCES Roles(idRol)
+)
+
+CREATE TABLE Usuarios(
+	idUsuario INTEGER PRIMARY KEY IDENTITY,
+	nombre1 VARCHAR(50) NOT NULL,
+	nombre2 VARCHAR(50),
+	apellido1 VARCHAR(50) NOT NULL,
+	apellido2 VARCHAR(50) NOT NULL,
+	DNI VARCHAR(50) NOT NULL,
+	telefono1 VARCHAR(50) NOT NULL UNIQUE,
+	telefono2 VARCHAR(50) UNIQUE,
+	correo VARCHAR(70) NOT NULL UNIQUE,
+	contrasenia VARCHAR(50) NOT NULL,
+	fechaNacimiento DATE NOT NULL,
+	idDireccion INTEGER REFERENCES Direcciones(idDireccion),
+		)
+
+CREATE TABLE Estudiantes(
+	idEstudiante INTEGER PRIMARY KEY IDENTITY,
+	idUsuario INTEGER REFERENCES Usuarios(idUsuario),
+	)
+
+CREATE TABLE Profesiones(
+	idProfesion INTEGER PRIMARY KEY IDENTITY,
+	nombre VARCHAR(50) NOT NULL UNIQUE
+)
+
+CREATE TABLE Cargos(
+	idCargo INTEGER PRIMARY KEY IDENTITY,
+	nombre VARCHAR(50) NOT NULL UNIQUE,
+	descripcion VARCHAR 
+)
+
+CREATE TABLE Categorias(
+	idCategoria INTEGER PRIMARY KEY IDENTITY,
+	descripcion VARCHAR NOT NULL UNIQUE
+)
+
+CREATE TABLE Cuerpo(
+	idCuerpo INTEGER PRIMARY KEY IDENTITY,
+	descripcion VARCHAR NOT NULL,
+	recursos VARCHAR(70)
+	)
+
+CREATE TABLE Contenido(
+	idContenido INTEGER PRIMARY KEY IDENTITY,
+	tema VARCHAR(50) NOT NULL,
+	idCuerpo INTEGER REFERENCES Cuerpo(idCuerpo)
+)
+
+CREATE TABLE Modulos(
+	idModulo INTEGER PRIMARY KEY IDENTITY,
+	descripcion VARCHAR NOT NULL,
+	idContenido INTEGER REFERENCES Contenido(idContenido)
+)
+
+CREATE TABLE Tareas(
+	idTarea INTEGER PRIMARY KEY IDENTITY,
+	descripcion VARCHAR NOT NULL,
+	idModulo INTEGER REFERENCES Modulos(idModulo)
+	)
+
+CREATE TABLE Cursos(
+	idCurso INTEGER PRIMARY KEY IDENTITY,
+	nombre VARCHAR(50) NOT NULL UNIQUE,
+	descripcion VARCHAR NOT NULL,
+	precio INTEGER NOT NULL,
+	idCategoria INTEGER REFERENCES Categorias(idCategoria),
+	idContenido INTEGER REFERENCES Contenido(idContenido)
+)
+
+CREATE TABLE Sucursales(
+	idSucursal INTEGER PRIMARY KEY IDENTITY,
+	nombre VARCHAR(50) NOT NULL UNIQUE,
+	telefono1 VARCHAR(20) NOT NULL UNIQUE,
+	telefono2 VARCHAR(20) UNIQUE,
+	correo1 VARCHAR(70) NOT NULL UNIQUE,
+	correo2 VARCHAR(70) UNIQUE,
+	idDireccion INTEGER REFERENCES Direcciones(idDireccion),
+	idCursos INTEGER REFERENCES Cursos(idCurso)
+)
+
+CREATE TABLE cursoSucursal(
+	idcursoSucursal INTEGER PRIMARY KEY IDENTITY,
+	idCurso INTEGER REFERENCES Cursos(idCurso),
+	idSucursal INTEGER REFERENCES Sucursales(idSucursal)
+)
+
+CREATE TABLE Diplomas(
+	idDiploma INTEGER PRIMARY KEY IDENTITY,
+	fecha DATE NOT NULL,
+	idEstudiante INTEGER REFERENCES Estudiantes(idEstudiante),
+	idCursos INTEGER REFERENCES Cursos(idCurso)
+	
+)
+
+CREATE TABLE Empleados(
+	idEmpleado INTEGER PRIMARY KEY IDENTITY,
+	idRol INTEGER REFERENCES Roles(idRol),
+	idCursos INTEGER REFERENCES Cursos(idCurso),
+	salario INTEGER NOT NULL,
+	idProfesion INTEGER REFERENCES Profesiones(idProfesion),
+	idCargo INTEGER REFERENCES Cargos(idCargo),
+	idUsuario INTEGER REFERENCES Usuarios(idUsuario),
+	idSucursal INTEGER REFERENCES Sucursales(idSucursal)
+)
+
+CREATE TABLE CargosEmpleados(
+	idCargosEmpleado INTEGER PRIMARY KEY IDENTITY,
+	idEmpleado INTEGER REFERENCES Empleados(idEmpleado),
+	idCargo INTEGER REFERENCES Cargos(idCargo),
+)
+
+CREATE TABLE Contratos(
+	idContrato INTEGER PRIMARY KEY IDENTITY,
+	idEmpleado INTEGER REFERENCES Empleados(idEmpleado),
+	idCargo INTEGER REFERENCES Cargos(idCargo),
+	fechaInicio DATE NOT NULL,
+	fechaFinal DATE NOT NULL
+)
+
+CREATE TABLE Carrito(
+	idCarrito INTEGER PRIMARY KEY IDENTITY,
+	idEstudiante INTEGER REFERENCES Estudiantes(idEstudiante),
+	idCursos INTEGER REFERENCES Cursos(idCurso)
+)
+
+CREATE TABLE MetodoDePago(
+	idMetodoDePago INTEGER PRIMARY KEY IDENTITY,
+	nombre varchar(50) NOT NULL UNIQUE
+)
+
+CREATE TABLE Caja(
+	idCaja INTEGER PRIMARY KEY IDENTITY,
+	montoTotal INTEGER NOT NULL
+)
+
+CREATE TABLE Ventas(
+	idVenta INTEGER PRIMARY KEY IDENTITY,
+	idCarrito INTEGER REFERENCES Carrito(idCarrito),
+	idSucursal INTEGER REFERENCES Sucursales(idSucursal),
+	idMetodoDePago INTEGER REFERENCES MetodoDePago(idMetodoDePago),
+	fecha DATE NOT NULL,
+	hora TIME NOT NULL,
+	importeExonerado INTEGER NOT NULL,
+	subtotal DECIMAL NOT NULL,
+	ISV15 DECIMAL(3,2),
+	ISV18 DECIMAL(3,2),
+	total DECIMAL
+)
+
+CREATE TABLE Empresas(
+	idEmpresa INTEGER PRIMARY KEY IDENTITY,
+	RTN VARCHAR(14),
+	nombre VARCHAR(50),
+	correo1 VARCHAR(70),
+	correo2 VARCHAR(70),
+	telefono1 VARCHAR(20),
+	telefono2 VARCHAR(20),
+)
+
+CREATE TABLE tipoDocumentos(
+	idTipoDocumento INTEGER PRIMARY KEY IDENTITY,
+	nombre VARCHAR(50) NOT NULL UNIQUE,
+	codigoSAR VARCHAR NOT NULL,
+)
+
+CREATE TABLE Establecimientos(
+	idEstablecimiento INTEGER PRIMARY KEY IDENTITY,
+	nombre VARCHAR(50) NOT NULL UNIQUE,
+	codigoSAR VARCHAR,
+	idDireccion INTEGER REFERENCES Direcciones(idDireccion),
+	)
+
+CREATE TABLE PuntoEmision(
+	idPuntoEmision INTEGER PRIMARY KEY IDENTITY,
+	nombre VARCHAR(50) NOT NULL UNIQUE,
+	codigoSAR VARCHAR,
+	idEstablecimiento INTEGER REFERENCES Establecimientos(idEstablecimiento),
+	)
+
+CREATE TABLE Resolucion(
+	idResolucion INTEGER PRIMARY KEY IDENTITY,
+	CAI VARCHAR NOT NULL,
+	rangoInicial INTEGER NOT NULL,
+	rangoFinal INTEGER NOT NULL,
+	actual INTEGER NOT NULL,
+	fechaFinal DATE NOT NULL,
+	idPuntoEmision INTEGER REFERENCES PuntoEmision(idPuntoEmision),
+	idEstablecimiento INTEGER REFERENCES Establecimientos(idEstablecimiento),
+	idTipoDocumento INTEGER REFERENCES TipoDocumentos(idTipoDocumento)
+)
+
+CREATE TABLE Facturas(
+	idFactura INTEGER PRIMARY KEY IDENTITY,
+	fechaFacturacion DATE NOT NULL,
+	idVenta INTEGER REFERENCES Ventas(idVenta),
+	idEmpresa INTEGER REFERENCES Empresas(idEmpresa),
+	idCaja INTEGER REFERENCES Caja(idCaja),
+	idSucursal INTEGER REFERENCES Sucursales(idSucursal),
+	idResolucion INTEGER REFERENCES Resolucion(idResolucion)
+
+)
+
+INSERT INTO Paises (nombre) VALUES ('Honduras');
+INSERT INTO Paises (nombre) VALUES ('Perú');
+
+INSERT INTO Departamentos (idPais, nombre) VALUES (1, 'Francisco Morazán');
+INSERT INTO Departamentos (idPais, nombre) VALUES (2, 'Yoro');
+
+INSERT INTO Municipios (idDepartamento, nombre) VALUES (1, 'Distrito Central');
+INSERT INTO Direcciones (idMunicipio, colonia,calle) VALUES (1, 'Col. Kennedy', 'aaa');
+
+INSERT INTO Roles (rol) VALUES ('Recursos Humanos');
+INSERT INTO Permisos (permiso, idRol) VALUES ('A', 1);
+
+INSERT INTO Usuarios(nombre1, apellido1, apellido2, DNI, telefono1, telefono2, correo, contrasenia, fechaNacimiento, idDireccion)
+VALUES ('Pedro', 'Hernandez', 'Alvarado', '0801199228222', '9800-0000', '9200-0000', 'pedro@correo.com','1234', '2001-08-02', 1);
